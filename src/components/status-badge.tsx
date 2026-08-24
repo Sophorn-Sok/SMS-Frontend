@@ -3,6 +3,7 @@ const toneClassNames = {
   amber: "bg-amber-50 text-amber-700",
   rose: "bg-rose-50 text-rose-700",
   slate: "bg-stone-100 text-stone-600",
+  sky: "bg-sky-50 text-sky-700",
 } as const;
 
 export type StatusTone = keyof typeof toneClassNames;

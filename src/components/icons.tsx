@@ -475,3 +475,63 @@ export function RobotIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function DoorIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="5.5" y="3" width="11" height="18" rx="1" />
+      <path d="M12.5 12h.01" />
+      <path d="M16.5 3v18" />
+    </svg>
+  );
+}
+
+export function ClipboardClockIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M8 4.5h8" />
+      <rect x="6" y="4.5" width="12" height="15" rx="2" />
+      <rect x="9" y="3" width="6" height="3" rx="1" />
+      <circle cx="12" cy="13" r="3.4" />
+      <path d="M12 11.3v1.9l1.3.9" />
+    </svg>
+  );
+}
+
+export function ClipboardCheckIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="6" y="4.5" width="12" height="15" rx="2" />
+      <rect x="9" y="3" width="6" height="3" rx="1" />
+      <path d="M9.2 12.2 11.2 14.2 14.8 10.6" />
+    </svg>
+  );
+}
+
+export function PrinterIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M7 8.5V4h10v4.5" />
+      <rect x="4.5" y="8.5" width="15" height="8" rx="1.5" />
+      <rect x="7" y="13" width="10" height="7" rx="1" />
+    </svg>
+  );
+}
+
+export function XCircleIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.5 9.5 14.5 14.5" />
+      <path d="M14.5 9.5 9.5 14.5" />
+    </svg>
+  );
+}
+
+export function StarIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 3.5l2.5 5.3 5.8.6-4.3 4 1.2 5.7-5.2-2.9-5.2 2.9 1.2-5.7-4.3-4 5.8-.6Z" />
+    </svg>
+  );
+}
