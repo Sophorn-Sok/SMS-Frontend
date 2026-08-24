@@ -1,17 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { KitLogo } from "@/components/kit-logo";
-import {
-  BarChartIcon,
-  BellIcon,
-  GearIcon,
-  GridIcon,
-  HelpCircleIcon,
-  LogOutIcon,
-  SearchIcon,
-} from "@/components/icons";
+import { DashboardShell } from "@/components/dashboard-shell";
+import { BarChartIcon, GridIcon } from "@/components/icons";
 
 function isDashboardActive(pathname: string) {
   return (
@@ -49,85 +40,13 @@ export function StudentAffairsShell({
   ];
 
   return (
-    <div className="flex min-h-screen bg-white">
-      <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col overflow-y-auto border-r border-rose-100 bg-rose-50/60 px-5 py-6">
-        <Link href="/student-affairs" className="flex items-center gap-2.5 px-2">
-          <KitLogo className="h-9 w-9" />
-          <span className="text-xl font-extrabold tracking-tight text-rose-800">
-            KIT SMS
-          </span>
-        </Link>
-
-        <nav className="mt-10 flex flex-col gap-1.5">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-colors ${
-                item.active
-                  ? "bg-rose-800 text-white shadow-sm"
-                  : "text-stone-500 hover:bg-rose-100/70 hover:text-stone-700"
-              }`}
-            >
-              <item.icon className="h-5 w-5" />
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="mt-auto flex flex-col gap-1.5 border-t border-rose-100 pt-5">
-          <Link
-            href="#"
-            className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-100/70"
-          >
-            <HelpCircleIcon className="h-5 w-5" />
-            Support
-          </Link>
-          <Link
-            href="#"
-            className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-100/70"
-          >
-            <GearIcon className="h-5 w-5" />
-            Settings
-          </Link>
-          <Link
-            href="/sign-in"
-            className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-100/70"
-          >
-            <LogOutIcon className="h-5 w-5" />
-            Sign Out
-          </Link>
-        </div>
-      </aside>
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center gap-6 border-b border-stone-200 bg-white px-8 py-4">
-          <div className="relative max-w-md flex-1">
-            <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400" />
-            <input
-              type="text"
-              placeholder="Search student records..."
-              className="w-full rounded-full border border-transparent bg-rose-50/70 py-2.5 pl-11 pr-4 text-sm text-stone-700 placeholder:text-stone-400 outline-none focus:border-rose-200"
-            />
-          </div>
-          <div className="ml-auto flex items-center gap-5">
-            <button
-              type="button"
-              aria-label="Notifications"
-              className="text-stone-500 hover:text-stone-700"
-            >
-              <BellIcon className="h-5 w-5" />
-            </button>
-            <div className="h-8 w-px bg-stone-200" />
-            <div className="text-right leading-tight">
-              <p className="text-sm font-bold text-stone-800">SAO</p>
-              <p className="text-xs text-stone-400">Student Affair</p>
-            </div>
-          </div>
-        </header>
-
-        <main className="flex-1 bg-slate-50 px-10 py-8">{children}</main>
-      </div>
-    </div>
+    <DashboardShell
+      homeHref="/student-affairs"
+      navItems={navItems}
+      userInitials="SAO"
+      userRole="Student Affair"
+    >
+      {children}
+    </DashboardShell>
   );
 }

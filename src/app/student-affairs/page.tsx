@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { IconStatCard } from "@/components/student-affairs/icon-stat-card";
-import { PageHeader } from "@/components/student-affairs/page-header";
-import { StatusBadge, type StatusTone } from "@/components/student-affairs/status-badge";
+import { IconStatCard } from "@/components/icon-stat-card";
+import { PageHeader } from "@/components/page-header";
+import { StatusBadge, type StatusTone } from "@/components/status-badge";
 import {
   ClipboardIcon,
   FilterIcon,

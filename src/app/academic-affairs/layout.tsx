@@ -1,15 +1,7 @@
-import { RoleShell } from "@/components/role-shell";
-import { roleFeatures } from "@/lib/features";
+import { AcademicAffairsShell } from "@/components/academic-affairs/shell";
 
 export default function AcademicAffairsLayout({
   children,
 }: LayoutProps<"/academic-affairs">) {
-  return (
-    <RoleShell
-      roleLabel="Academic Affairs"
-      features={roleFeatures["academic-affairs"]}
-    >
-      {children}
-    </RoleShell>
-  );
+  return <AcademicAffairsShell>{children}</AcademicAffairsShell>;
 }

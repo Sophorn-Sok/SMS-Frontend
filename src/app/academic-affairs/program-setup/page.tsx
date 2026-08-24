@@ -1,6 +1,5 @@
-import { FeaturePlaceholder } from "@/components/feature-placeholder";
-import { roleFeatures } from "@/lib/features";
+import { redirect } from "next/navigation";
 
 export default function AcademicProgramSetupPage() {
-  return <FeaturePlaceholder feature={roleFeatures["academic-affairs"][0]} />;
+  redirect("/academic-affairs");
 }

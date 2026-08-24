@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { MetricStatCard } from "@/components/student-affairs/metric-stat-card";
-import { PageHeader } from "@/components/student-affairs/page-header";
-import { StatusBadge, type StatusTone } from "@/components/student-affairs/status-badge";
+import { MetricStatCard } from "@/components/metric-stat-card";
+import { PageHeader } from "@/components/page-header";
+import { StatusBadge, type StatusTone } from "@/components/status-badge";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,

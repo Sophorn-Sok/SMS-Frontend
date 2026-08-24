@@ -337,3 +337,43 @@ export function FunnelIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function PlusIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
+  );
+}
+
+export function SparkleIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" />
+    </svg>
+  );
+}
+
+export function AlertTriangleIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 4 3 20h18L12 4Z" />
+      <path d="M12 10.5v4" />
+      <path d="M12 17.3h.01" />
+    </svg>
+  );
+}
+
+export function CalendarXIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="4" y="5.5" width="16" height="14" rx="2" />
+      <path d="M4 10h16" />
+      <path d="M8 3.5v3" />
+      <path d="M16 3.5v3" />
+      <path d="M9.5 13.5l4 4" />
+      <path d="M13.5 13.5l-4 4" />
+    </svg>
+  );
+}

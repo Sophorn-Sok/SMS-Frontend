@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PageHeader } from "@/components/student-affairs/page-header";
+import { PageHeader } from "@/components/page-header";
 import {
   CameraIcon,
   ChevronDownIcon,
