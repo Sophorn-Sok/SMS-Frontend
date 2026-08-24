@@ -577,3 +577,45 @@ export function TrendUpIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function DollarIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 6.5v11" />
+      <path d="M15 9c0-1.4-1.3-2.3-3-2.3s-3 .8-3 2.1c0 3 6 1.5 6 4.4 0 1.4-1.4 2.3-3 2.3s-3-.9-3-2.3" />
+    </svg>
+  );
+}
+
+export function PartyIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M4 20 14 6l4 4L4 20Z" />
+      <path d="M13 3.5h.01" />
+      <path d="M18 5.5h.01" />
+      <path d="M20 9h.01" />
+      <path d="M9.5 8.5h.01" />
+    </svg>
+  );
+}
+
+export function IdCardIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="3" y="5.5" width="18" height="13" rx="2" />
+      <circle cx="8.5" cy="11" r="2" />
+      <path d="M5.5 16c.5-1.7 1.8-2.5 3-2.5s2.5.8 3 2.5" />
+      <path d="M14 9.5h4.5" />
+      <path d="M14 12.5h4.5" />
+    </svg>
+  );
+}
+
+export function ZapIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12.5 3 5 13.5h5.5L11 21l7.5-10.5H13Z" />
+    </svg>
+  );
+}

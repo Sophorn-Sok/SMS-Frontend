@@ -1,6 +1,5 @@
-import { FeatureIndex } from "@/components/feature-index";
-import { roleFeatures } from "@/lib/features";
+import { redirect } from "next/navigation";
 
 export default function AdminHome() {
-  return <FeatureIndex roleLabel="Admin" features={roleFeatures["admin"]} />;
+  redirect("/admin/accounts");
 }

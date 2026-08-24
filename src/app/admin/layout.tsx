@@ -1,10 +1,5 @@
-import { RoleShell } from "@/components/role-shell";
-import { roleFeatures } from "@/lib/features";
+import { AdminShell } from "@/components/admin/shell";
 
 export default function AdminLayout({ children }: LayoutProps<"/admin">) {
-  return (
-    <RoleShell roleLabel="Admin" features={roleFeatures["admin"]}>
-      {children}
-    </RoleShell>
-  );
+  return <AdminShell>{children}</AdminShell>;
 }
