@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PageHeader } from "@/components/page-header";
+import { PromoBanner } from "@/components/promo-banner";
 import { StatusBadge } from "@/components/status-badge";
 import {
   AlertTriangleIcon,
@@ -284,12 +285,10 @@ export default function CourseRegistrationSchedulingPage() {
             )}
           </div>
 
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-stone-800 to-rose-950 p-6 text-white">
-            <p className="text-lg font-bold">New Campus Wing</p>
-            <p className="mt-1 text-sm text-stone-200">
-              Available for bookings from Dec 2024
-            </p>
-          </div>
+          <PromoBanner
+            title="New Campus Wing"
+            description="Available for bookings from Dec 2024"
+          />
         </aside>
       </div>
     </div>

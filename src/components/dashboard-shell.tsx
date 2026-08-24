@@ -22,13 +22,13 @@ export interface DashboardNavItem {
 export function DashboardShell({
   homeHref,
   navItems,
-  userInitials,
+  userName,
   userRole,
   children,
 }: {
   homeHref: string;
   navItems: DashboardNavItem[];
-  userInitials: string;
+  userName: string;
   userRole: string;
   children: React.ReactNode;
 }) {
@@ -105,7 +105,7 @@ export function DashboardShell({
             <div className="h-8 w-px bg-stone-200" />
             <div className="text-right leading-tight">
               <p className="text-sm font-bold text-stone-800">
-                {userInitials}
+                {userName}
               </p>
               <p className="text-xs text-stone-400">{userRole}</p>
             </div>

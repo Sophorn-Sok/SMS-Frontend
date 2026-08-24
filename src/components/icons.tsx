@@ -365,6 +365,17 @@ export function AlertTriangleIcon(props: IconProps) {
   );
 }
 
+export function CalendarIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="4" y="5.5" width="16" height="14" rx="2" />
+      <path d="M4 10h16" />
+      <path d="M8 3.5v3" />
+      <path d="M16 3.5v3" />
+    </svg>
+  );
+}
+
 export function CalendarXIcon(props: IconProps) {
   return (
     <svg {...base} {...props}>
@@ -374,6 +385,93 @@ export function CalendarXIcon(props: IconProps) {
       <path d="M16 3.5v3" />
       <path d="M9.5 13.5l4 4" />
       <path d="M13.5 13.5l-4 4" />
+    </svg>
+  );
+}
+
+export function MapPinIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 1 1 13 0c0 5.4-6.5 11-6.5 11Z" />
+      <circle cx="12" cy="10" r="2.3" />
+    </svg>
+  );
+}
+
+export function ClockIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5.5l3.5 2" />
+    </svg>
+  );
+}
+
+export function CloudCheckIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M7 18a4.5 4.5 0 0 1-1-8.9 5.5 5.5 0 0 1 10.7-2A4.5 4.5 0 0 1 17 18" />
+      <path d="M9.5 13.2l1.8 1.8 3.2-3.4" />
+    </svg>
+  );
+}
+
+export function EnvelopeIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="3.5" y="5.5" width="17" height="13" rx="2" />
+      <path d="M4 6.5 12 13l8-6.5" />
+    </svg>
+  );
+}
+
+export function LightbulbIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M9 18h6" />
+      <path d="M10 21h4" />
+      <path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4.9 1.1.9 1.9v.2h5.2v-.2c0-.8.3-1.5.9-1.9A6 6 0 0 0 12 3Z" />
+    </svg>
+  );
+}
+
+export function EditIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M4 16.5V20h3.5L18.4 9.1a1.7 1.7 0 0 0 0-2.4l-1.1-1.1a1.7 1.7 0 0 0-2.4 0L4 16.5Z" />
+      <path d="M13.5 6.5l3 3" />
+    </svg>
+  );
+}
+
+export function CalculatorIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="5" y="3" width="14" height="18" rx="2" />
+      <path d="M7.5 6.5h9" />
+      <path d="M7.5 11h.01" />
+      <path d="M11.5 11h.01" />
+      <path d="M15.5 11h.01" />
+      <path d="M7.5 14.5h.01" />
+      <path d="M11.5 14.5h.01" />
+      <path d="M15.5 11v6.5" />
+      <path d="M7.5 18h.01" />
+      <path d="M11.5 18h.01" />
+    </svg>
+  );
+}
+
+export function RobotIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="5" y="9" width="14" height="10" rx="2" />
+      <path d="M12 5.5v3.5" />
+      <circle cx="12" cy="4.5" r="1" fill="currentColor" stroke="none" />
+      <path d="M9 13.5h.01" />
+      <path d="M15 13.5h.01" />
+      <path d="M9 17h6" />
+      <path d="M2.5 12v3" />
+      <path d="M21.5 12v3" />
     </svg>
   );
 }

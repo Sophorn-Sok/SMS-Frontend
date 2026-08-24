@@ -43,7 +43,7 @@ export function StudentAffairsShell({
     <DashboardShell
       homeHref="/student-affairs"
       navItems={navItems}
-      userInitials="SAO"
+      userName="SAO"
       userRole="Student Affair"
     >
       {children}

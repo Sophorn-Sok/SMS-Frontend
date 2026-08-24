@@ -1,12 +1,7 @@
-import { RoleShell } from "@/components/role-shell";
-import { roleFeatures } from "@/lib/features";
+import { TeacherShell } from "@/components/teacher/shell";
 
 export default function TeacherLayout({
   children,
 }: LayoutProps<"/teacher">) {
-  return (
-    <RoleShell roleLabel="Teacher" features={roleFeatures["teacher"]}>
-      {children}
-    </RoleShell>
-  );
+  return <TeacherShell>{children}</TeacherShell>;
 }
