@@ -535,3 +535,45 @@ export function StarIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function FlaskIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M10 3.5h4" />
+      <path d="M10.5 3.5v6.2L5.8 18a1.8 1.8 0 0 0 1.6 2.6h9.2a1.8 1.8 0 0 0 1.6-2.6l-4.7-8.3V3.5" />
+      <path d="M8 15.5h8" />
+    </svg>
+  );
+}
+
+export function QuizIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="4.5" y="4" width="15" height="16" rx="2" />
+      <path d="M9.7 9.3a2.3 2.3 0 0 1 4.4.9c0 1.5-2.1 1.6-2.1 3.1" />
+      <path d="M12 16.3h.01" />
+    </svg>
+  );
+}
+
+export function CalendarArrowIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="4" y="5.5" width="16" height="14" rx="2" />
+      <path d="M4 10h16" />
+      <path d="M8 3.5v3" />
+      <path d="M16 3.5v3" />
+      <path d="M9.5 15h5" />
+      <path d="M12.5 12.5 15 15l-2.5 2.5" />
+    </svg>
+  );
+}
+
+export function TrendUpIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M4 16.5 10 10l3.5 3.5L20 6.5" />
+      <path d="M14.5 6.5H20v5.5" />
+    </svg>
+  );
+}

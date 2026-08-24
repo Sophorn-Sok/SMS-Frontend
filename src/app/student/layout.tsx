@@ -1,12 +1,5 @@
-import { RoleShell } from "@/components/role-shell";
-import { roleFeatures } from "@/lib/features";
+import { StudentShell } from "@/components/student/shell";
 
-export default function StudentLayout({
-  children,
-}: LayoutProps<"/student">) {
-  return (
-    <RoleShell roleLabel="Student" features={roleFeatures["student"]}>
-      {children}
-    </RoleShell>
-  );
+export default function StudentLayout({ children }: LayoutProps<"/student">) {
+  return <StudentShell>{children}</StudentShell>;
 }
