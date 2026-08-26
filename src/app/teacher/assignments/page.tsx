@@ -9,6 +9,7 @@ import {
   DownloadIcon,
   EditIcon,
   LightbulbIcon,
+  XIcon,
 } from "@/components/icons";
 import {
   assignments as initialAssignments,
@@ -30,12 +31,45 @@ const submissionStatusTone: Record<RosterStudent["submissionStatus"], StatusTone
 
 type SortKey = "roll" | "name" | "score";
 
+interface NewAssignmentForm {
+  code: string;
+  title: string;
+  className: string;
+  totalStudents: string;
+  deadline: string;
+}
+
+const emptyAssignmentForm: NewAssignmentForm = {
+  code: "",
+  title: "",
+  className: "",
+  totalStudents: "",
+  deadline: "",
+};
+
+function formatDeadline(dateStr: string) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 export default function AssignmentGradingPage() {
   const [assignments, setAssignments] = useState(initialAssignments);
   const [selectedId, setSelectedId] = useState(assignments[0].id);
   const [sortKey, setSortKey] = useState<SortKey>("roll");
   const [draftMessage, setDraftMessage] = useState<string | null>(null);
   const [submittedIds, setSubmittedIds] = useState<Set<string>>(new Set());
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newAssignment, setNewAssignment] = useState<NewAssignmentForm>(
+    emptyAssignmentForm,
+  );
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const selected = assignments.find((a) => a.id === selectedId) ?? assignments[0];
   const isSubmitted = submittedIds.has(selected.id);
@@ -86,6 +120,43 @@ export default function AssignmentGradingPage() {
     setSubmittedIds((prev) => new Set(prev).add(selected.id));
   }
 
+  function openCreateModal() {
+    setNewAssignment(emptyAssignmentForm);
+    setCreateError(null);
+    setShowCreateModal(true);
+  }
+
+  function handleCreateAssignment(e: React.FormEvent) {
+    e.preventDefault();
+    if (
+      !newAssignment.code ||
+      !newAssignment.title ||
+      !newAssignment.className ||
+      !newAssignment.deadline
+    ) {
+      setCreateError("Please fill in the course code, title, class, and deadline.");
+      return;
+    }
+    const totalStudents = Number(newAssignment.totalStudents) || 0;
+    const created: Assignment = {
+      id: `asg-${Date.now()}`,
+      code: newAssignment.code.toUpperCase(),
+      title: newAssignment.title,
+      badge: "UPCOMING",
+      deadlineLabel: `Deadline: ${formatDeadline(newAssignment.deadline)}`,
+      submissionsLabel: `0/${totalStudents} Submissions`,
+      className: `${newAssignment.code.toUpperCase()}: ${newAssignment.title.toUpperCase()}`,
+      classMeta: `Class: ${newAssignment.className}`,
+      stats: { average: "—", high: "—", low: "—", pending: "00" },
+      roster: [],
+    };
+    setAssignments((prev) => [created, ...prev]);
+    setSelectedId(created.id);
+    setShowCreateModal(false);
+    setToast(`Assignment "${created.title}" has been created.`);
+    window.setTimeout(() => setToast(null), 4000);
+  }
+
   return (
     <div>
       <p className="mb-1 text-sm text-stone-500">
@@ -105,6 +176,7 @@ export default function AssignmentGradingPage() {
             </button>
             <button
               type="button"
+              onClick={openCreateModal}
               className="flex items-center gap-2 rounded-lg bg-rose-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-rose-900"
             >
               <EditIcon className="h-4 w-4" />
@@ -353,6 +425,139 @@ export default function AssignmentGradingPage() {
           </div>
         </div>
       </div>
+
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <form
+            onSubmit={handleCreateAssignment}
+            noValidate
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-stone-900">
+                  Create Assignment
+                </h3>
+                <p className="mt-1 text-sm text-stone-500">
+                  Add a new assignment for your students.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(false)}
+                aria-label="Close"
+                className="text-stone-400 hover:text-stone-600"
+              >
+                <XIcon className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-500">
+                    Course Code
+                  </label>
+                  <input
+                    placeholder="e.g. CS-402"
+                    value={newAssignment.code}
+                    onChange={(e) =>
+                      setNewAssignment((f) => ({ ...f, code: e.target.value }))
+                    }
+                    className="w-full rounded-lg border border-stone-200 px-4 py-2.5 text-sm outline-none focus:border-rose-400"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-500">
+                    Deadline
+                  </label>
+                  <input
+                    type="date"
+                    value={newAssignment.deadline}
+                    onChange={(e) =>
+                      setNewAssignment((f) => ({ ...f, deadline: e.target.value }))
+                    }
+                    className="w-full rounded-lg border border-stone-200 px-4 py-2.5 text-sm outline-none focus:border-rose-400"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-500">
+                  Assignment Title
+                </label>
+                <input
+                  placeholder="e.g. Midterm Project Proposal"
+                  value={newAssignment.title}
+                  onChange={(e) =>
+                    setNewAssignment((f) => ({ ...f, title: e.target.value }))
+                  }
+                  className="w-full rounded-lg border border-stone-200 px-4 py-2.5 text-sm outline-none focus:border-rose-400"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-500">
+                    Class / Section
+                  </label>
+                  <input
+                    placeholder="e.g. 4th Year - Section B"
+                    value={newAssignment.className}
+                    onChange={(e) =>
+                      setNewAssignment((f) => ({ ...f, className: e.target.value }))
+                    }
+                    className="w-full rounded-lg border border-stone-200 px-4 py-2.5 text-sm outline-none focus:border-rose-400"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-stone-500">
+                    Total Students
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="e.g. 25"
+                    value={newAssignment.totalStudents}
+                    onChange={(e) =>
+                      setNewAssignment((f) => ({
+                        ...f,
+                        totalStudents: e.target.value,
+                      }))
+                    }
+                    className="w-full rounded-lg border border-stone-200 px-4 py-2.5 text-sm outline-none focus:border-rose-400"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {createError && (
+              <p className="mt-3 text-sm font-medium text-rose-600">{createError}</p>
+            )}
+
+            <div className="mt-6 flex items-center justify-end gap-4">
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(false)}
+                className="text-sm font-semibold text-stone-500 hover:text-stone-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="rounded-lg bg-rose-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-rose-900"
+              >
+                Create Assignment
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl bg-emerald-600 px-5 py-4 text-white shadow-xl">
+          <CheckCircleIcon className="h-6 w-6 shrink-0" />
+          <p className="font-semibold">{toast}</p>
+        </div>
+      )}
     </div>
   );
 }

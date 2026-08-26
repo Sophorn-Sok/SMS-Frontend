@@ -98,4 +98,40 @@ export const recentDirectoryChanges: DirectoryChange[] = [
       " Aiden Thompson's scholarship details were updated by Admissions Head.",
     meta: "Yesterday at 4:30 PM • Admin: Janet S.",
   },
+  {
+    id: 4,
+    dotColorClassName: "bg-sky-500",
+    boldText: "Document Verified:",
+    restText: " Birth certificate approved for Priya Nair (STU-2023-104).",
+    meta: "Yesterday at 1:05 PM • Admin: Janet S.",
+  },
+  {
+    id: 5,
+    dotColorClassName: "bg-rose-600",
+    boldText: "Bulk Upload Completed:",
+    restText: " 18 new records added to Department of Civil Engineering.",
+    meta: "2 days ago • ID: 22887",
+  },
+  {
+    id: 6,
+    dotColorClassName: "bg-rose-300",
+    boldText: "Record Modified:",
+    restText: " Katelyn Lee's enrollment status changed to Withdrawn.",
+    meta: "3 days ago • Admin: Marcus B.",
+  },
+  {
+    id: 7,
+    dotColorClassName: "bg-sky-500",
+    boldText: "Status Update:",
+    restText:
+      " 5 students transitioned from 'Pending' to 'Enrolled' after document review.",
+    meta: "4 days ago • Automated Task",
+  },
+  {
+    id: 8,
+    dotColorClassName: "bg-rose-600",
+    boldText: "Enrollment Report Sent:",
+    restText: " Weekly enrollment summary delivered to the Principal's office.",
+    meta: "5 days ago • Automated Task",
+  },
 ];

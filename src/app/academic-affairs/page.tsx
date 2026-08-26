@@ -1,17 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge, type StatusTone } from "@/components/status-badge";
 import {
   AlertTriangleIcon,
   CalendarXIcon,
+  CheckCircleIcon,
   ChevronDownIcon,
   DownloadIcon,
+  FileTextIcon,
   FunnelIcon,
   GraduationCapIcon,
   UploadCloudIcon,
+  XIcon,
 } from "@/components/icons";
 import {
   MAJOR_OPTIONS,
@@ -20,6 +23,12 @@ import {
   upcomingDeadlines,
   type RegistrationMonitorRow,
 } from "@/lib/academic-affairs/data";
+
+const ACCEPTED_IMPORT_TYPES = [
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "text/csv",
+];
 
 const statusTone: Record<RegistrationMonitorRow["status"], StatusTone> = {
   OPEN: "green",
@@ -67,6 +76,42 @@ export default function AcademicAffairsDashboard() {
   const [enrollmentEnd, setEnrollmentEnd] = useState("");
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
+  const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [isDraggingUpload, setIsDraggingUpload] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
+
+  function openBulkUploadModal() {
+    setUploadFile(null);
+    setUploadError(null);
+    setShowBulkUploadModal(true);
+  }
+
+  function selectUploadFile(file: File | undefined | null) {
+    if (!file) return;
+    const isAcceptedType =
+      ACCEPTED_IMPORT_TYPES.includes(file.type) || /\.(xlsx|xls|csv)$/i.test(file.name);
+    if (!isAcceptedType) {
+      setUploadError("Please upload an Excel (.xlsx, .xls) or CSV file.");
+      return;
+    }
+    setUploadError(null);
+    setUploadFile(file);
+  }
+
+  function handleSaveBulkUpload() {
+    if (!uploadFile) {
+      setUploadError("Please select a file to upload.");
+      return;
+    }
+    setShowBulkUploadModal(false);
+    setToast(`"${uploadFile.name}" has been uploaded and is being processed.`);
+    setUploadFile(null);
+    window.setTimeout(() => setToast(null), 4000);
+  }
+
   function handleDiscard() {
     setProgram(PROGRAM_OPTIONS[0]);
     setMajor(MAJOR_OPTIONS[0]);
@@ -90,6 +135,7 @@ export default function AcademicAffairsDashboard() {
           <>
             <button
               type="button"
+              onClick={openBulkUploadModal}
               className="flex items-center gap-2 rounded-lg border border-stone-300 px-5 py-2.5 text-sm font-semibold text-stone-600 hover:bg-stone-50"
             >
               <UploadCloudIcon className="h-4 w-4" />
@@ -382,6 +428,120 @@ export default function AcademicAffairsDashboard() {
           </div>
         </aside>
       </div>
+
+      {showBulkUploadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-stone-900">
+                  Bulk Upload
+                </h3>
+                <p className="mt-1 text-sm text-stone-500">
+                  Upload an Excel or CSV file to add or update multiple
+                  academic program records at once.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowBulkUploadModal(false)}
+                aria-label="Close"
+                className="text-stone-400 hover:text-stone-600"
+              >
+                <XIcon className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div
+              className={`mt-5 rounded-2xl border-2 border-dashed p-8 text-center transition-colors ${
+                isDraggingUpload
+                  ? "border-rose-400 bg-rose-100/60"
+                  : "border-rose-200 bg-rose-50/40"
+              }`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDraggingUpload(true);
+              }}
+              onDragLeave={() => setIsDraggingUpload(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDraggingUpload(false);
+                selectUploadFile(e.dataTransfer.files?.[0]);
+              }}
+            >
+              <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
+                <UploadCloudIcon className="h-7 w-7" />
+              </span>
+              <p className="mt-4 font-semibold text-stone-800">
+                Drag and drop your file here
+              </p>
+              <p className="mt-1 text-xs text-stone-500">
+                Supports .xlsx, .xls, and .csv files
+              </p>
+              <input
+                ref={uploadInputRef}
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                className="hidden"
+                onChange={(e) => selectUploadFile(e.target.files?.[0])}
+              />
+              <button
+                type="button"
+                onClick={() => uploadInputRef.current?.click()}
+                className="mt-4 inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50"
+              >
+                <UploadCloudIcon className="h-4 w-4" />
+                Browse Files
+              </button>
+
+              {uploadFile && (
+                <div className="mx-auto mt-4 flex max-w-xs items-center justify-between gap-2 rounded-lg border border-stone-200 bg-white px-3 py-2 text-left">
+                  <span className="flex min-w-0 items-center gap-2 text-sm text-stone-700">
+                    <FileTextIcon className="h-4 w-4 shrink-0 text-rose-600" />
+                    <span className="truncate">{uploadFile.name}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setUploadFile(null)}
+                    aria-label="Remove file"
+                    className="shrink-0 text-stone-400 hover:text-rose-600"
+                  >
+                    <XIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {uploadError && (
+              <p className="mt-3 text-sm font-medium text-rose-600">{uploadError}</p>
+            )}
+
+            <div className="mt-6 flex items-center justify-end gap-4">
+              <button
+                type="button"
+                onClick={() => setShowBulkUploadModal(false)}
+                className="text-sm font-semibold text-stone-500 hover:text-stone-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveBulkUpload}
+                className="rounded-lg bg-rose-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-rose-900"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl bg-emerald-600 px-5 py-4 text-white shadow-xl">
+          <CheckCircleIcon className="h-6 w-6 shrink-0" />
+          <p className="font-semibold">{toast}</p>
+        </div>
+      )}
     </div>
   );
 }

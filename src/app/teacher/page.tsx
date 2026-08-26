@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge, type StatusTone } from "@/components/status-badge";
 import {
@@ -54,16 +54,42 @@ export default function TeacherDashboard() {
   );
   const [confirmation, setConfirmation] = useState<string | null>(null);
 
-  const today = useMemo(
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
+  const formattedDate = useMemo(
     () =>
-      new Date().toLocaleDateString("en-US", {
+      selectedDate.toLocaleDateString("en-US", {
         weekday: "long",
         year: "numeric",
         month: "short",
         day: "numeric",
       }),
-    [],
+    [selectedDate],
   );
+
+  const dateInputValue = useMemo(() => {
+    const y = selectedDate.getFullYear();
+    const m = String(selectedDate.getMonth() + 1).padStart(2, "0");
+    const d = String(selectedDate.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }, [selectedDate]);
+
+  function handleDateChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!e.target.value) return;
+    const [y, m, d] = e.target.value.split("-").map(Number);
+    setSelectedDate(new Date(y, m - 1, d));
+  }
+
+  function openDatePicker() {
+    const el = dateInputRef.current;
+    if (!el) return;
+    if (typeof el.showPicker === "function") {
+      el.showPicker();
+    } else {
+      el.focus();
+    }
+  }
 
   function toggleAttendance(id: string) {
     setRoster((prev) =>
@@ -98,10 +124,24 @@ export default function TeacherDashboard() {
         title="Teacher Dashboard"
         description="Welcome back, Elena. Here's what's happening in your classroom today."
         actions={
-          <span className="flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-5 py-2.5 text-sm font-semibold text-stone-700">
-            <CalendarIcon className="h-4 w-4 text-rose-700" />
-            {today}
-          </span>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={openDatePicker}
+              className="flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-5 py-2.5 text-sm font-semibold text-stone-700 hover:bg-stone-50"
+            >
+              <CalendarIcon className="h-4 w-4 text-rose-700" />
+              {formattedDate}
+            </button>
+            <input
+              ref={dateInputRef}
+              type="date"
+              value={dateInputValue}
+              onChange={handleDateChange}
+              aria-label="Select date"
+              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+            />
+          </div>
         }
       />
 

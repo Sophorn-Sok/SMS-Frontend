@@ -5,6 +5,7 @@ import { MetricStatCard } from "@/components/metric-stat-card";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge, type StatusTone } from "@/components/status-badge";
 import {
+  CheckCircleIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   DownloadIcon,
@@ -58,6 +59,7 @@ export default function EnrollmentReportingPage() {
   const [page, setPage] = useState(1);
   const [sentReports, setSentReports] = useState<SentReport[]>(initialSentReports);
   const [isSending, setIsSending] = useState(false);
+  const [sentToast, setSentToast] = useState<string | null>(null);
 
   const totalPages = Math.ceil(enrollmentRows.length / PAGE_SIZE);
   const pagedRows = useMemo(
@@ -86,6 +88,8 @@ export default function EnrollmentReportingPage() {
         ),
       );
       setIsSending(false);
+      setSentToast(`"${newReport.title}" has already been sent to the Principal.`);
+      window.setTimeout(() => setSentToast(null), 4000);
     }, 1200);
   }
 
@@ -320,6 +324,13 @@ export default function EnrollmentReportingPage() {
           </div>
         </div>
       </div>
+
+      {sentToast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl bg-emerald-600 px-5 py-4 text-white shadow-xl">
+          <CheckCircleIcon className="h-6 w-6 shrink-0" />
+          <p className="font-semibold">{sentToast}</p>
+        </div>
+      )}
     </div>
   );
 }

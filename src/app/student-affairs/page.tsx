@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { IconStatCard } from "@/components/icon-stat-card";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge, type StatusTone } from "@/components/status-badge";
 import {
+  CheckCircleIcon,
   ClipboardIcon,
+  FileTextIcon,
   FilterIcon,
   GraduationCapIcon,
   HistoryIcon,
@@ -17,12 +19,19 @@ import {
   UploadCloudIcon,
   UserPlusIcon,
   UsersIcon,
+  XIcon,
 } from "@/components/icons";
 import {
   recentDirectoryChanges,
   students,
   type StudentRecord,
 } from "@/lib/student-affairs/students";
+
+const ACCEPTED_IMPORT_TYPES = [
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "text/csv",
+];
 
 const statusTone: Record<StudentRecord["status"], StatusTone> = {
   Enrolled: "green",
@@ -42,6 +51,15 @@ function initialsOf(name: string) {
 export default function StudentAffairsDashboard() {
   const [query, setQuery] = useState("");
 
+  const [showBulkImportModal, setShowBulkImportModal] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [isDraggingImport, setIsDraggingImport] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
+
+  const [showAllChangesModal, setShowAllChangesModal] = useState(false);
+  const [savedToast, setSavedToast] = useState<string | null>(null);
+
   const filteredStudents = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return students;
@@ -53,6 +71,36 @@ export default function StudentAffairsDashboard() {
     );
   }, [query]);
 
+  function openBulkImportModal() {
+    setImportFile(null);
+    setImportError(null);
+    setShowBulkImportModal(true);
+  }
+
+  function selectImportFile(file: File | undefined | null) {
+    if (!file) return;
+    const isAcceptedType =
+      ACCEPTED_IMPORT_TYPES.includes(file.type) ||
+      /\.(xlsx|xls|csv)$/i.test(file.name);
+    if (!isAcceptedType) {
+      setImportError("Please upload an Excel (.xlsx, .xls) or CSV file.");
+      return;
+    }
+    setImportError(null);
+    setImportFile(file);
+  }
+
+  function handleSaveImport() {
+    if (!importFile) {
+      setImportError("Please select a file to import.");
+      return;
+    }
+    setShowBulkImportModal(false);
+    setSavedToast(`"${importFile.name}" has been saved.`);
+    setImportFile(null);
+    window.setTimeout(() => setSavedToast(null), 4000);
+  }
+
   return (
     <div>
       <PageHeader
@@ -62,6 +110,7 @@ export default function StudentAffairsDashboard() {
           <>
             <button
               type="button"
+              onClick={openBulkImportModal}
               className="flex items-center gap-2 rounded-lg border border-stone-300 px-5 py-2.5 text-sm font-semibold text-stone-600 hover:bg-stone-50"
             >
               <UploadCloudIcon className="h-4 w-4" />
@@ -260,7 +309,7 @@ export default function StudentAffairsDashboard() {
           Recent Directory Changes
         </h2>
         <ul className="space-y-4">
-          {recentDirectoryChanges.map((change) => (
+          {recentDirectoryChanges.slice(0, 3).map((change) => (
             <li key={change.id} className="flex items-start gap-3">
               <span
                 className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${change.dotColorClassName}`}
@@ -275,13 +324,164 @@ export default function StudentAffairsDashboard() {
             </li>
           ))}
         </ul>
-        <Link
-          href="#"
+        <button
+          type="button"
+          onClick={() => setShowAllChangesModal(true)}
           className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-rose-700 hover:underline"
         >
-          View Audit Log →
-        </Link>
+          View All →
+        </button>
       </div>
+
+      {showBulkImportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-stone-900">
+                  Bulk Import Students
+                </h3>
+                <p className="mt-1 text-sm text-stone-500">
+                  Upload an Excel or CSV file to add or update multiple student
+                  records at once.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowBulkImportModal(false)}
+                aria-label="Close"
+                className="text-stone-400 hover:text-stone-600"
+              >
+                <XIcon className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div
+              className={`mt-5 rounded-2xl border-2 border-dashed p-8 text-center transition-colors ${
+                isDraggingImport
+                  ? "border-rose-400 bg-rose-100/60"
+                  : "border-rose-200 bg-rose-50/40"
+              }`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDraggingImport(true);
+              }}
+              onDragLeave={() => setIsDraggingImport(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDraggingImport(false);
+                selectImportFile(e.dataTransfer.files?.[0]);
+              }}
+            >
+              <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
+                <UploadCloudIcon className="h-7 w-7" />
+              </span>
+              <p className="mt-4 font-semibold text-stone-800">
+                Drag and drop your file here
+              </p>
+              <p className="mt-1 text-xs text-stone-500">
+                Supports .xlsx, .xls, and .csv files
+              </p>
+              <input
+                ref={importInputRef}
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                className="hidden"
+                onChange={(e) => selectImportFile(e.target.files?.[0])}
+              />
+              <button
+                type="button"
+                onClick={() => importInputRef.current?.click()}
+                className="mt-4 inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50"
+              >
+                <UploadCloudIcon className="h-4 w-4" />
+                Browse Files
+              </button>
+
+              {importFile && (
+                <div className="mx-auto mt-4 flex max-w-xs items-center justify-between gap-2 rounded-lg border border-stone-200 bg-white px-3 py-2 text-left">
+                  <span className="flex min-w-0 items-center gap-2 text-sm text-stone-700">
+                    <FileTextIcon className="h-4 w-4 shrink-0 text-rose-600" />
+                    <span className="truncate">{importFile.name}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setImportFile(null)}
+                    aria-label="Remove file"
+                    className="shrink-0 text-stone-400 hover:text-rose-600"
+                  >
+                    <XIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {importError && (
+              <p className="mt-3 text-sm font-medium text-rose-600">{importError}</p>
+            )}
+
+            <div className="mt-6 flex items-center justify-end gap-4">
+              <button
+                type="button"
+                onClick={() => setShowBulkImportModal(false)}
+                className="text-sm font-semibold text-stone-500 hover:text-stone-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveImport}
+                className="rounded-lg bg-rose-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-rose-900"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAllChangesModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="flex max-h-[80vh] w-full max-w-lg flex-col rounded-2xl bg-white p-6 shadow-xl">
+            <div className="flex items-start justify-between">
+              <h3 className="text-lg font-bold text-stone-900">
+                All Directory Changes
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowAllChangesModal(false)}
+                aria-label="Close"
+                className="text-stone-400 hover:text-stone-600"
+              >
+                <XIcon className="h-5 w-5" />
+              </button>
+            </div>
+            <ul className="mt-4 flex-1 space-y-4 overflow-y-auto pr-1">
+              {recentDirectoryChanges.map((change) => (
+                <li key={change.id} className="flex items-start gap-3">
+                  <span
+                    className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${change.dotColorClassName}`}
+                  />
+                  <div>
+                    <p className="text-sm text-stone-700">
+                      <span className="font-semibold">{change.boldText}</span>
+                      {change.restText}
+                    </p>
+                    <p className="mt-0.5 text-xs text-stone-400">{change.meta}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {savedToast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl bg-emerald-600 px-5 py-4 text-white shadow-xl">
+          <CheckCircleIcon className="h-6 w-6 shrink-0" />
+          <p className="font-semibold">{savedToast}</p>
+        </div>
+      )}
     </div>
   );
 }
