@@ -7,6 +7,8 @@ import { apiFetch } from "@/lib/api/client";
 import type { BloodGroup, DepartmentDTO, Gender, StudentDTO, UpdateStudentBody } from "@/lib/api/types";
 import { EditStudentFields } from "@/components/student-affairs/management/edit-student-fields";
 
+import { isValidCambodiaPhone, isValidEmail, validateDateOfBirth } from "@/components/student-affairs/enrollment/validation";
+
 interface ModalProps {
   student: StudentDTO;
   departments: DepartmentDTO[];
@@ -26,7 +28,7 @@ export function EditStudentModal({ student, departments, isOpen, onClose, onSucc
   const [contactDetails, setContactDetails] = useState(student.contactDetails || "");
   const [guardianName, setGuardianName] = useState(student.guardianName || "");
   const [guardianContact, setGuardianContact] = useState(student.guardianContact || "");
-  const [departmentId, setDepartmentId] = useState(student.departmentId || departments[0]?.id || "");
+  const [departmentId, setDepartmentId] = useState(student.departmentId || "");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const editMutation = useMutation({
@@ -44,7 +46,13 @@ export function EditStudentModal({ student, departments, isOpen, onClose, onSucc
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firstName.trim() || !lastName.trim()) return setErrorMsg("Name required");
+    setErrorMsg(null);
+    if (!firstName.trim() || !lastName.trim()) return setErrorMsg("First and Last Name are required.");
+    const dobError = dateOfBirth ? validateDateOfBirth(dateOfBirth) : null;
+    if (dobError) return setErrorMsg(dobError);
+    if (personalEmail.trim() && !isValidEmail(personalEmail)) return setErrorMsg("Invalid email format.");
+    if (contactDetails.trim() && !isValidCambodiaPhone(contactDetails)) return setErrorMsg("Invalid Cambodian phone number (e.g. 012 345 678).");
+    if (guardianContact.trim() && !isValidCambodiaPhone(guardianContact)) return setErrorMsg("Invalid Cambodian guardian phone number.");
     editMutation.mutate({
       firstName: firstName.trim(), lastName: lastName.trim(), dateOfBirth: dateOfBirth || undefined,
       gender: gender ? (gender as Gender) : undefined, bloodGroup: bloodGroup ? (bloodGroup as BloodGroup) : undefined,

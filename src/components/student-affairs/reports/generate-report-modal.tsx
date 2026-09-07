@@ -29,6 +29,7 @@ export function GenerateReportModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const effectiveYear = yearId || academicYears[0]?.id || "";
+    if (!effectiveYear) return;
     onSubmit(effectiveYear, deptId === "ALL" ? undefined : deptId);
   };
 

@@ -63,19 +63,19 @@ export default function EnrollmentReportingPage() {
           label="Total Active Students"
           value={summary ? summary.byStatus.ENROLLED.toLocaleString() : "…"}
           trend="Active"
-          progress={summary?.total ? Math.min(100, Math.round(((summary.byStatus.ENROLLED ?? 0) / summary.total) * 100)) : 100}
+          progress={summary?.total ? Math.min(100, Math.round(((summary.byStatus.ENROLLED ?? 0) / summary.total) * 100)) : 0}
         />
         <MetricStatCard
           label="New Enrollees"
           value={summary ? summary.total.toLocaleString() : "…"}
           trend="Total"
-          progress={100}
+          progress={summary?.total ? 100 : 0}
         />
         <MetricStatCard
           label="Current Academic Session"
-          value={summary?.currentAcademicYear?.yearLabel || "2024-2025"}
+          value={summary?.currentAcademicYear?.yearLabel || "N/A"}
           trend="Session"
-          progress={100}
+          progress={summary?.currentAcademicYear ? 100 : 0}
         />
       </div>
 

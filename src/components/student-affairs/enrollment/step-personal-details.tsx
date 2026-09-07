@@ -48,11 +48,11 @@ export function StepPersonalDetails({ formData, setFormData, onNext, fieldErrors
         <TextField id="dob" label="Date of Birth" type="date" value={formData.dob} onChange={(v) => update("dob", v)} required error={fieldErrors?.dateOfBirth?.[0]} />
         <SelectField id="gender" label="Gender" value={formData.gender} onChange={(v) => update("gender", v as Gender)} options={GENDER_OPTIONS} required />
         <TextField id="email" label="Personal Email" type="email" value={formData.email} onChange={(v) => update("email", v)} error={fieldErrors?.personalEmail?.[0]} />
-        <TextField id="mobile" label="Contact Number" type="tel" value={formData.mobile} onChange={(v) => update("mobile", v)} error={fieldErrors?.contactDetails?.[0]} />
+        <TextField id="mobile" label="Contact Number" type="tel" placeholder="e.g. 012 345 678" value={formData.mobile} onChange={(v) => update("mobile", v)} error={fieldErrors?.contactDetails?.[0]} />
         <SelectField id="bloodGroup" label="Blood Group" value={formData.bloodGroup} onChange={(v) => update("bloodGroup", v as BloodGroup)} options={BLOOD_OPTIONS} placeholder="Select blood group (Optional)" />
       </div>
 
-      <GuardianFields formData={formData} update={update} />
+      <GuardianFields formData={formData} update={update} error={fieldErrors?.guardianContact?.[0]} />
 
       <div className="flex justify-end border-t border-stone-100 pt-4">
         <button

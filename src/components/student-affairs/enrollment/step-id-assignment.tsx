@@ -49,7 +49,7 @@ export function StepIdAssignment({
           value={formData.studentNumber}
           onChange={(v) => setFormData((prev) => ({ ...prev, studentNumber: v }))}
           required
-          placeholder="e.g. STU-2024-001"
+          placeholder={`e.g. STU-${new Date().getFullYear()}-001`}
           error={fieldErrors?.studentNumber?.[0]}
         />
         <p className="mt-1 text-[11px] text-stone-500">

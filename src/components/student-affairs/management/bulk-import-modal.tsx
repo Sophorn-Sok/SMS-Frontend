@@ -1,15 +1,17 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { UploadCloudIcon, XIcon } from "@/components/icons";
+import { DownloadIcon, UploadCloudIcon, XIcon } from "@/components/icons";
 import { apiFetch } from "@/lib/api/client";
-import type { CreateStudentBody, ImportStudentsResultDTO } from "@/lib/api/types";
+import type { ImportStudentsResultDTO } from "@/lib/api/types";
 
 interface BulkImportProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (result: ImportStudentsResultDTO) => void;
 }
+
+const CSV_HEADER = "studentNumber,firstName,lastName,dateOfBirth,gender,personalEmail,contactDetails,guardianName,guardianContact\nSTU-2026-001,Sokha,Meas,2005-04-12,MALE,sokha.meas@example.com,012345678,Sopheap Meas,012987654";
 
 export function BulkImportModal({ isOpen, onClose, onSuccess }: BulkImportProps) {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -19,36 +21,32 @@ export function BulkImportModal({ isOpen, onClose, onSuccess }: BulkImportProps)
 
   if (!isOpen) return null;
 
+  const downloadTemplate = () => {
+    const blob = new Blob([CSV_HEADER], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url; link.setAttribute("download", "student_import_template.csv");
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  };
+
   const handleUpload = async () => {
     if (!file) return;
-    setLoading(true);
-    setError(null);
+    setLoading(true); setError(null);
     try {
       const text = await file.text();
-      const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
-      if (lines.length <= 1) throw new Error("CSV file has no data rows.");
-
-      const students: CreateStudentBody[] = lines.slice(1).map((line) => {
-        const [studentNumber, firstName, lastName, email, gender, dob] = line.split(",").map((s) => s.trim().replace(/^"|"$/g, ""));
-        return {
-          studentNumber: studentNumber || `STU-${Date.now().toString().slice(-4)}`,
-          firstName: firstName || "Student",
-          lastName: lastName || "Name",
-          personalEmail: email || undefined,
-          gender: (gender?.toUpperCase() === "FEMALE" ? "FEMALE" : "MALE"),
-          dateOfBirth: dob || undefined,
-        };
-      });
-
+      if (!text.trim()) throw new Error("The selected CSV file is empty.");
       const res = await apiFetch<ImportStudentsResultDTO>("/student-affairs/students/import", {
         method: "POST",
-        body: { students },
+        body: { csv: text },
       });
-      onSuccess(res.data);
-      onClose();
+      if (res.data.failedCount > 0) {
+        setError(`Imported ${res.data.createdCount} students, but ${res.data.failedCount} rows failed: ${res.data.errors[0]?.message}`);
+      } else {
+        onSuccess(res.data);
+        onClose();
+      }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to import CSV";
-      setError(msg);
+      setError(err instanceof Error ? err.message : "Failed to import CSV");
     } finally {
       setLoading(false);
     }
@@ -66,7 +64,11 @@ export function BulkImportModal({ isOpen, onClose, onSuccess }: BulkImportProps)
           <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={(e) => { setFile(e.target.files?.[0] || null); setError(null); }} />
           <UploadCloudIcon className="mx-auto h-7 w-7 text-stone-400" />
           <p className="mt-2 text-xs font-semibold text-stone-700">{file ? file.name : "Select a CSV file"}</p>
-          <button type="button" onClick={() => fileRef.current?.click()} className="mt-2 text-xs font-bold text-rose-700 hover:underline">Browse CSV</button>
+          <div className="mt-2 flex items-center justify-center gap-3">
+            <button type="button" onClick={() => fileRef.current?.click()} className="text-xs font-bold text-rose-700 hover:underline">Browse CSV</button>
+            <span className="text-stone-300">|</span>
+            <button type="button" onClick={downloadTemplate} className="flex items-center gap-1 text-xs text-stone-600 hover:text-stone-900"><DownloadIcon className="h-3 w-3" /> Template</button>
+          </div>
         </div>
         <div className="mt-4 flex justify-end gap-2 border-t pt-3">
           <button type="button" onClick={onClose} className="rounded-lg border px-3 py-1.5 text-xs font-semibold hover:bg-stone-50">Cancel</button>

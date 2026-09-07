@@ -44,7 +44,7 @@ export function ProfileDocumentsTab({
             </select>
             <ChevronDownIcon className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-stone-400" />
           </div>
-          <input type="url" required value={fileUrl} onChange={(e) => setFileUrl(e.target.value)} placeholder="https://storage.kit.test/docs/..." className="rounded-lg border bg-white px-3 py-1.5 outline-none" />
+          <input type="url" required value={fileUrl} onChange={(e) => setFileUrl(e.target.value)} placeholder="https://example.com/docs/file.pdf" className="rounded-lg border bg-white px-3 py-1.5 outline-none" />
         </div>
         <div className="mt-2 flex justify-end">
           <button type="submit" disabled={isAdding} className="flex items-center gap-1 rounded-lg bg-rose-800 px-3 py-1 text-xs font-semibold text-white hover:bg-rose-900 disabled:opacity-50">

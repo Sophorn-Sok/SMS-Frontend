@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch, ApiRequestError } from "@/lib/api/client";
 import type { CreateStudentBody, StudentDTO } from "@/lib/api/types";
 import { INITIAL_ENROLLMENT_DATA, type EnrollmentFormData } from "./types";
+import { isValidCambodiaPhone, isValidEmail, isValidGpa, isValidGradYear, validateDateOfBirth } from "./validation";
 
 export function useEnrollment(departments: { id: string }[], academicYears: { id: string; yearLabel: string }[]) {
   const queryClient = useQueryClient();
@@ -15,9 +16,6 @@ export function useEnrollment(departments: { id: string }[], academicYears: { id
   const [portraitPreview, setPortraitPreview] = useState<string | null>(null);
   const [portraitError, setPortraitError] = useState<string | null>(null);
   const [formData, setFormData] = useState<EnrollmentFormData>(INITIAL_ENROLLMENT_DATA);
-
-  const effectiveDeptId = formData.departmentId || departments[0]?.id || "";
-  const effectiveYearId = formData.academicYearId || academicYears[0]?.id || "";
 
   const createMutation = useMutation({
     mutationFn: (body: CreateStudentBody) => apiFetch<StudentDTO>("/student-affairs/students", { method: "POST", body }),
@@ -36,16 +34,35 @@ export function useEnrollment(departments: { id: string }[], academicYears: { id
   });
 
   const nextToStep2 = () => {
-    if (!formData.firstName.trim() || !formData.lastName.trim()) return setFormError("First and Last Name required.");
-    if (!formData.dob) return setFormError("Date of Birth is required.");
+    setFieldErrors({});
+    if (!formData.firstName.trim() || !formData.lastName.trim()) return setFormError("First and Last Name are required.");
+    const dobError = validateDateOfBirth(formData.dob);
+    if (dobError) { setFieldErrors({ dateOfBirth: [dobError] }); return setFormError(dobError); }
+    if (formData.email.trim() && !isValidEmail(formData.email)) {
+      setFieldErrors({ personalEmail: ["Invalid email format."] }); return setFormError("Please enter a valid email address.");
+    }
+    if (formData.mobile.trim() && !isValidCambodiaPhone(formData.mobile)) {
+      setFieldErrors({ contactDetails: ["Invalid Cambodia phone number."] });
+      return setFormError("Please enter a valid Cambodian phone (e.g. 012 345 678 or +855 12 345 678).");
+    }
+    if (formData.guardianContact.trim() && !isValidCambodiaPhone(formData.guardianContact)) {
+      setFieldErrors({ guardianContact: ["Invalid Cambodia phone number."] });
+      return setFormError("Please enter a valid Cambodian guardian phone number.");
+    }
     setFormError(null);
     setCurrentStep(2);
   };
 
   const nextToStep3 = () => {
+    setFieldErrors({});
+    if (!formData.departmentId) return setFormError("Please select a Target Department / Faculty.");
+    if (!formData.academicYearId) return setFormError("Please select an Academic Year.");
+    if (formData.prevGpa.trim() && !isValidGpa(formData.prevGpa)) return setFormError("Previous GPA must be between 0.0 and 4.0.");
+    if (formData.graduationYear.trim() && !isValidGradYear(formData.graduationYear)) return setFormError("Please enter a valid graduation year.");
+
     setFormError(null);
     if (!formData.studentNumber) {
-      const year = academicYears.find((y) => y.id === effectiveYearId)?.yearLabel.slice(0, 4) || "2024";
+      const year = academicYears.find((y) => y.id === formData.academicYearId)?.yearLabel.slice(0, 4) || String(new Date().getFullYear());
       setFormData((p) => ({ ...p, studentNumber: `STU-${year}-${Math.floor(1000 + Math.random() * 9000)}` }));
     }
     setCurrentStep(3);
@@ -53,26 +70,23 @@ export function useEnrollment(departments: { id: string }[], academicYears: { id
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.studentNumber.trim()) return setFormError("Student ID number is required.");
     createMutation.mutate({
       studentNumber: formData.studentNumber.trim(), firstName: formData.firstName.trim(),
       lastName: formData.lastName.trim(), dateOfBirth: formData.dob || undefined, gender: formData.gender,
       personalEmail: formData.email.trim() || undefined, contactDetails: formData.mobile.trim() || undefined,
       bloodGroup: formData.bloodGroup || undefined, guardianName: formData.guardianName.trim() || undefined,
-      guardianContact: formData.guardianContact.trim() || undefined, departmentId: effectiveDeptId || undefined,
+      guardianContact: formData.guardianContact.trim() || undefined, departmentId: formData.departmentId || undefined,
       status: "ENROLLED", enrollmentDate: new Date().toISOString().slice(0, 10),
     });
   };
 
-  const reset = () => {
-    setAssignedId(null);
-    setCurrentStep(1);
-    setFormData(INITIAL_ENROLLMENT_DATA);
-  };
+  const reset = () => { setAssignedId(null); setCurrentStep(1); setFormData(INITIAL_ENROLLMENT_DATA); };
 
   return {
     currentStep, setCurrentStep, assignedId, formError, setFormError, fieldErrors,
     portraitPreview, setPortraitPreview, portraitError, setPortraitError,
-    formData, setFormData, effectiveDeptId, effectiveYearId, isSubmitting: createMutation.isPending,
-    nextToStep2, nextToStep3, submit, reset,
+    formData, setFormData, effectiveDeptId: formData.departmentId, effectiveYearId: formData.academicYearId,
+    isSubmitting: createMutation.isPending, nextToStep2, nextToStep3, submit, reset,
   };
 }

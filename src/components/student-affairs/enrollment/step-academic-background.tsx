@@ -13,6 +13,7 @@ interface StepAcademicProps {
   academicYears: AcademicYearDTO[];
   onBack: () => void;
   onNext: () => void;
+  fieldErrors?: Record<string, string[]>;
 }
 
 export function StepAcademicBackground({
@@ -22,6 +23,7 @@ export function StepAcademicBackground({
   academicYears,
   onBack,
   onNext,
+  fieldErrors,
 }: StepAcademicProps) {
   const update = (key: keyof EnrollmentFormData, val: unknown) =>
     setFormData((prev) => ({ ...prev, [key]: val }));
@@ -48,6 +50,8 @@ export function StepAcademicBackground({
           value={formData.departmentId}
           onChange={(v) => update("departmentId", v)}
           options={deptOptions}
+          placeholder="Select Department / Faculty"
+          error={fieldErrors?.departmentId?.[0]}
           required
         />
         <SelectField
@@ -56,6 +60,8 @@ export function StepAcademicBackground({
           value={formData.academicYearId}
           onChange={(v) => update("academicYearId", v)}
           options={yearOptions}
+          placeholder="Select Academic Year"
+          error={fieldErrors?.academicYearId?.[0]}
           required
         />
       </div>

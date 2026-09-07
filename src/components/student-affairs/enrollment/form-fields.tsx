@@ -53,6 +53,7 @@ interface SelectFieldProps {
   options: { label: string; value: string }[];
   placeholder?: string;
   required?: boolean;
+  error?: string;
 }
 
 export function SelectField({
@@ -63,6 +64,7 @@ export function SelectField({
   options,
   placeholder,
   required,
+  error,
 }: SelectFieldProps) {
   return (
     <div>
@@ -74,7 +76,11 @@ export function SelectField({
           id={id}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full appearance-none rounded-lg border border-stone-200 bg-white px-3.5 py-2.5 text-sm text-stone-900 outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+          className={`w-full appearance-none rounded-lg border px-3.5 py-2.5 text-sm text-stone-900 outline-none transition-colors ${
+            error
+              ? "border-rose-400 bg-rose-50/20 focus:ring-2 focus:ring-rose-200"
+              : "border-stone-200 bg-white focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+          }`}
         >
           {placeholder && <option value="">{placeholder}</option>}
           {options.map((opt) => (
@@ -85,6 +91,7 @@ export function SelectField({
         </select>
         <ChevronDownIcon className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
       </div>
+      {error && <p className="mt-1 text-xs text-rose-600">{error}</p>}
     </div>
   );
 }

@@ -43,8 +43,8 @@ export default function StudentEnrollmentPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px]">
           <div>
             {currentStep === 1 && <StepPersonalDetails formData={formData} setFormData={setFormData} onNext={nextToStep2} fieldErrors={fieldErrors} />}
-            {currentStep === 2 && <StepAcademicBackground formData={{ ...formData, departmentId: effectiveDeptId, academicYearId: effectiveYearId }} setFormData={setFormData} departments={departments} academicYears={academicYears} onBack={() => setCurrentStep(1)} onNext={nextToStep3} />}
-            {currentStep === 3 && <StepIdAssignment formData={{ ...formData, departmentId: effectiveDeptId, academicYearId: effectiveYearId }} setFormData={setFormData} departments={departments} academicYears={academicYears} isSubmitting={isSubmitting} onBack={() => setCurrentStep(2)} onSubmit={submit} fieldErrors={fieldErrors} />}
+            {currentStep === 2 && <StepAcademicBackground formData={formData} setFormData={setFormData} departments={departments} academicYears={academicYears} onBack={() => setCurrentStep(1)} onNext={nextToStep3} fieldErrors={fieldErrors} />}
+            {currentStep === 3 && <StepIdAssignment formData={formData} setFormData={setFormData} departments={departments} academicYears={academicYears} isSubmitting={isSubmitting} onBack={() => setCurrentStep(2)} onSubmit={submit} fieldErrors={fieldErrors} />}
           </div>
           <EnrollmentSidebar formData={formData} portraitPreview={portraitPreview} onPortraitChange={(e) => { const f = e.target.files?.[0]; if (f) { setPortraitError(null); setPortraitPreview(URL.createObjectURL(f)); } }} portraitError={portraitError} />
         </div>
