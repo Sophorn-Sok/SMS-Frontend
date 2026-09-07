@@ -167,6 +167,7 @@ export interface AcademicYearDTO {
 
 export interface StudentDTO {
   id: string;
+  userId?: string | null;
   studentNumber: string;
   firstName: string;
   lastName: string;
@@ -257,5 +258,14 @@ export interface GenerateReportBody {
   academicYearId: string;
   departmentId?: string;
   fileUrl?: string;
+}
+
+export interface AddStudentDocumentBody {
+  documentType: DocumentType;
+  fileUrl: string;
+}
+
+export interface LinkStudentAccountBody {
+  userId: string;
 }
 

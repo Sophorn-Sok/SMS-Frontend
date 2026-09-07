@@ -30,6 +30,8 @@ import type {
   StudentStatus,
   StudentSummaryDTO,
 } from "@/lib/api/types";
+import { EditStudentModal } from "./edit-student-modal";
+import { StudentProfileModal } from "./student-profile-modal";
 
 const PAGE_SIZE = 10;
 
@@ -72,6 +74,7 @@ export default function StudentAffairsDashboard() {
   const [importError, setImportError] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<StudentDTO | null>(null);
+  const [editingStudent, setEditingStudent] = useState<StudentDTO | null>(null);
   const [actionMenuStudentId, setActionMenuStudentId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const importInputRef = useRef<HTMLInputElement>(null);
@@ -417,6 +420,17 @@ export default function StudentAffairsDashboard() {
                           {/* Action Dropdown Menu */}
                           {actionMenuStudentId === student.id && (
                             <div className="absolute right-0 z-20 mt-1 w-48 rounded-xl border border-stone-200 bg-white py-1.5 shadow-lg">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingStudent(student);
+                                  setActionMenuStudentId(null);
+                                }}
+                                className="flex w-full items-center px-3.5 py-1.5 text-left text-xs font-semibold text-stone-700 hover:bg-stone-50"
+                              >
+                                Edit Information
+                              </button>
+                              <div className="my-1 border-t border-stone-100" />
                               <p className="px-3 py-1 text-xs font-bold uppercase tracking-wider text-stone-400">
                                 Change Status
                               </p>
@@ -482,89 +496,34 @@ export default function StudentAffairsDashboard() {
         )}
       </div>
 
-      {/* ─── Student Profile Modal ─── */}
+      {/* ─── Student Profile & Document Management Modal ─── */}
       {selectedStudent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
-            <div className="flex items-start justify-between border-b border-stone-100 pb-4">
-              <div>
-                <h3 className="text-lg font-bold text-stone-900">
-                  {selectedStudent.firstName} {selectedStudent.lastName}
-                </h3>
-                <p className="font-mono text-xs text-rose-700 font-semibold">
-                  {selectedStudent.studentNumber}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedStudent(null)}
-                aria-label="Close"
-                className="text-stone-400 hover:text-stone-600"
-              >
-                <XIcon className="h-5 w-5" />
-              </button>
-            </div>
+        <StudentProfileModal
+          student={selectedStudent}
+          isOpen={!!selectedStudent}
+          onClose={() => setSelectedStudent(null)}
+          onEdit={() => {
+            setEditingStudent(selectedStudent);
+          }}
+        />
+      )}
 
-            <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-xs font-semibold text-stone-400 uppercase">Department</p>
-                <p className="font-medium text-stone-800">{selectedStudent.department?.name || "None"}</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-stone-400 uppercase">Status</p>
-                <StatusBadge
-                  label={statusLabelMap[selectedStudent.status] || selectedStudent.status}
-                  tone={statusToneMap[selectedStudent.status] || "slate"}
-                />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-stone-400 uppercase">Email</p>
-                <p className="font-medium text-stone-800">{selectedStudent.personalEmail || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-stone-400 uppercase">Contact</p>
-                <p className="font-medium text-stone-800">{selectedStudent.contactDetails || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-stone-400 uppercase">Date of Birth</p>
-                <p className="font-medium text-stone-800">
-                  {selectedStudent.dateOfBirth
-                    ? new Date(selectedStudent.dateOfBirth).toLocaleDateString()
-                    : "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-stone-400 uppercase">Gender</p>
-                <p className="font-medium text-stone-800">{selectedStudent.gender || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-stone-400 uppercase">Guardian</p>
-                <p className="font-medium text-stone-800">
-                  {selectedStudent.guardianName || "N/A"}
-                  {selectedStudent.guardianContact ? ` (${selectedStudent.guardianContact})` : ""}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-stone-400 uppercase">Enrollment Date</p>
-                <p className="font-medium text-stone-800">
-                  {selectedStudent.enrollmentDate
-                    ? new Date(selectedStudent.enrollmentDate).toLocaleDateString()
-                    : "N/A"}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setSelectedStudent(null)}
-                className="rounded-lg bg-stone-100 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-200"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* ─── Edit Student Information Modal ─── */}
+      {editingStudent && (
+        <EditStudentModal
+          student={editingStudent}
+          departments={departments}
+          isOpen={!!editingStudent}
+          onClose={() => setEditingStudent(null)}
+          onSuccess={(updated) => {
+            setEditingStudent(null);
+            if (selectedStudent?.id === updated.id) {
+              setSelectedStudent(updated);
+            }
+            setToastMessage("Student record updated successfully.");
+            setTimeout(() => setToastMessage(null), 3500);
+          }}
+        />
       )}
 
       {/* ─── Bulk Import Modal ─── */}
