@@ -3,6 +3,8 @@
 import { usePathname } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { HistoryIcon, UsersIcon } from "@/components/icons";
+import { useAuth } from "@/lib/auth/auth-context";
+import { roleLabel } from "@/lib/auth/roles";
 
 function isUsersActive(pathname: string) {
   return pathname === "/admin" || pathname.startsWith("/admin/accounts");
@@ -14,6 +16,7 @@ function isAuditActive(pathname: string) {
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user } = useAuth();
 
   const navItems = [
     {
@@ -34,8 +37,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     <DashboardShell
       homeHref="/admin/accounts"
       navItems={navItems}
-      userName="Admin"
-      userRole="Super Admin"
+      userName={user ? `${user.firstName} ${user.lastName}` : "Admin"}
+      userRole={user ? roleLabel(user.role) : "Admin"}
     >
       {children}
     </DashboardShell>

@@ -1,79 +1,92 @@
-export type AuditAction = "Create" | "Update" | "Delete" | "Login" | "Permission Change";
+import type { AuditActionDTO, AuditLogDTO } from "@/lib/api/types";
+
+export type AuditAction = "Create" | "Update" | "Publish" | "Approve" | "Delete";
 
 export interface AuditEvent {
   id: string;
   actorName: string;
   actorInitials: string;
   actorColorClassName: string;
-  actorRole: string;
+  actorEmail: string;
   action: AuditAction;
+  module: string;
   detail: string;
-  ipAddress: string;
+  entityRef: string;
   timestamp: string;
 }
 
-export const initialAuditEvents: AuditEvent[] = [
-  {
-    id: "a1",
-    actorName: "Dr. Emily Watson",
-    actorInitials: "EW",
-    actorColorClassName: "bg-rose-100 text-rose-700",
-    actorRole: "Registrar",
-    action: "Update",
-    detail: "Updated grade record for STU-2023-089",
-    ipAddress: "192.168.1.24",
-    timestamp: "Today, 09:44 AM",
-  },
-  {
-    id: "a2",
-    actorName: "Admin",
-    actorInitials: "AD",
-    actorColorClassName: "bg-stone-200 text-stone-700",
-    actorRole: "Super Admin",
-    action: "Create",
-    detail: "Created user account for James Aris",
-    ipAddress: "10.0.0.5",
-    timestamp: "Today, 08:12 AM",
-  },
-  {
-    id: "a3",
-    actorName: "Marcus Sterling",
-    actorInitials: "MS",
-    actorColorClassName: "bg-sky-100 text-sky-700",
-    actorRole: "Principal",
-    action: "Login",
-    detail: "Signed in from a new device",
-    ipAddress: "172.16.4.11",
-    timestamp: "Oct 24, 04:15 PM",
-  },
-  {
-    id: "a4",
-    actorName: "Admin",
-    actorInitials: "AD",
-    actorColorClassName: "bg-stone-200 text-stone-700",
-    actorRole: "Super Admin",
-    action: "Delete",
-    detail: "Removed deactivated account: linda.c@academicnexus.edu",
-    ipAddress: "10.0.0.5",
-    timestamp: "Sep 12, 11:25 AM",
-  },
-  {
-    id: "a5",
-    actorName: "James Aris",
-    actorInitials: "JA",
-    actorColorClassName: "bg-amber-100 text-amber-700",
-    actorRole: "Teacher",
-    action: "Permission Change",
-    detail: "Granted grading access for CS-402",
-    ipAddress: "192.168.1.87",
-    timestamp: "Yesterday, 02:31 PM",
-  },
+const ACTION_LABEL: Record<AuditActionDTO, AuditAction> = {
+  CREATE: "Create",
+  UPDATE: "Update",
+  PUBLISH: "Publish",
+  APPROVE: "Approve",
+  DELETE: "Delete",
+};
+
+export const ACTION_VALUES: AuditActionDTO[] = [
+  "CREATE",
+  "UPDATE",
+  "PUBLISH",
+  "APPROVE",
+  "DELETE",
 ];
 
-export const ACTION_OPTIONS: AuditAction[] = [
-  "Create",
-  "Update",
-  "Delete",
-  "Login",
-  "Permission Change",
+export const ACTION_OPTIONS: { value: AuditActionDTO; label: AuditAction }[] =
+  ACTION_VALUES.map((value) => ({ value, label: ACTION_LABEL[value] }));
+
+const MODULE_LABEL: Record<string, string> = {
+  STUDENT_AFFAIRS: "Student Affairs",
+  ACADEMIC_AFFAIRS: "Academic Affairs",
+  TEACHER: "Teacher",
+  EXAM: "Examination",
+  ADMIN: "Admin",
+};
+
+const AVATAR_COLORS = [
+  "bg-rose-100 text-rose-700",
+  "bg-sky-100 text-sky-700",
+  "bg-amber-100 text-amber-700",
+  "bg-emerald-100 text-emerald-700",
+  "bg-violet-100 text-violet-700",
 ];
+
+function avatarColor(seed: string): string {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) hash = (hash * 31 + seed.charCodeAt(i)) | 0;
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
+function initialsOf(first: string, last: string): string {
+  return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase() || "??";
+}
+
+function formatTimestamp(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+export function fromApiAuditLog(dto: AuditLogDTO): AuditEvent {
+  const actorName = dto.user
+    ? `${dto.user.firstName} ${dto.user.lastName}`.trim()
+    : "Unknown";
+  return {
+    id: dto.id,
+    actorName,
+    actorInitials: dto.user
+      ? initialsOf(dto.user.firstName, dto.user.lastName)
+      : "??",
+    actorColorClassName: avatarColor(dto.userId),
+    actorEmail: dto.user?.email ?? "",
+    action: ACTION_LABEL[dto.action],
+    module: MODULE_LABEL[dto.module] ?? dto.module,
+    detail: dto.details ?? `${dto.action} ${dto.entityType}`,
+    entityRef: `${dto.entityType} · ${dto.entityId.slice(0, 8)}`,
+    timestamp: formatTimestamp(dto.createdAt),
+  };
+}

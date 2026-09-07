@@ -1,50 +1,77 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import {
   ArrowRightIcon,
-  BriefcaseIcon,
+  EnvelopeIcon,
   EyeIcon,
   EyeOffIcon,
   LockIcon,
 } from "@/components/icons";
 import { KitLogo } from "@/components/kit-logo";
+import { ApiRequestError } from "@/lib/api/client";
+import { useAuth } from "@/lib/auth/auth-context";
+import { roleHome } from "@/lib/auth/roles";
 import { DEMO_PASSWORD, demoAccounts, type DemoAccount } from "@/lib/demo-accounts";
 import { roles } from "@/lib/roles";
 
 export default function SignInPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignInForm />
+    </Suspense>
+  );
+}
+
+function SignInForm() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const searchParams = useSearchParams();
+  const { login, status, user } = useAuth();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    const account = demoAccounts.find(
-      (a) =>
-        a.username.toLowerCase() === username.trim().toLowerCase() &&
-        a.password === password,
-    );
-
-    if (!account) {
-      setError(
-        "Invalid username or password. Try one of the demo accounts below.",
-      );
-      return;
+  // Already signed in (e.g. hit /sign-in with a live session): bounce home.
+  useEffect(() => {
+    if (status === "authed" && user && !isSubmitting) {
+      router.replace(roleHome(user.role));
     }
+  }, [status, user, isSubmitting, router]);
 
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     setError(null);
     setIsSubmitting(true);
-    router.push(`/${account.role}`);
+    try {
+      const user = await login(email.trim(), password);
+      const next = searchParams.get("next");
+      router.push(next && next.startsWith("/") ? next : roleHome(user.role));
+    } catch (err) {
+      if (err instanceof ApiRequestError) {
+        if (err.status === 429) {
+          setError(
+            err.retryAfterSeconds
+              ? `Too many attempts. Try again in ${err.retryAfterSeconds}s.`
+              : "Too many attempts. Please try again later.",
+          );
+        } else if (err.status === 401) {
+          setError("Invalid email or password.");
+        } else {
+          setError(err.message);
+        }
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+      setIsSubmitting(false);
+    }
   }
 
   function handleDemoSelect(account: DemoAccount) {
-    setUsername(account.username);
+    setEmail(account.email);
     setPassword(account.password);
     setError(null);
   }
@@ -66,21 +93,21 @@ export default function SignInPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label
-                htmlFor="username"
+                htmlFor="email"
                 className="block text-sm font-medium text-stone-700"
               >
-                Username
+                Email
               </label>
               <div className="mt-1.5 relative">
-                <BriefcaseIcon className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />
+                <EnvelopeIcon className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />
                 <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  autoComplete="username"
-                  placeholder="e.g. STU-2024-001"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="e.g. admin@kit.test"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full rounded-lg border border-rose-200 bg-white py-3 pl-11 pr-4 text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-colors focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
                 />
               </div>
@@ -160,7 +187,7 @@ export default function SignInPage() {
           <ul className="mt-4 space-y-1.5">
             {demoAccounts.map((account) => {
               const role = roles.find((r) => r.slug === account.role);
-              const isSelected = username === account.username;
+              const isSelected = email === account.email;
               return (
                 <li key={account.role}>
                   <button
@@ -176,7 +203,7 @@ export default function SignInPage() {
                       {role?.label ?? account.role}
                     </span>
                     <span className="font-mono text-xs text-stone-400">
-                      {account.username}
+                      {account.email}
                     </span>
                   </button>
                 </li>

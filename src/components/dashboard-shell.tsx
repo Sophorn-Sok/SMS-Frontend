@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ComponentType } from "react";
 import { KitLogo } from "@/components/kit-logo";
+import { useAuth } from "@/lib/auth/auth-context";
 import {
   BellIcon,
   GearIcon,
@@ -32,6 +33,8 @@ export function DashboardShell({
   userRole: string;
   children: React.ReactNode;
 }) {
+  const { logout } = useAuth();
+
   return (
     <div className="flex min-h-screen bg-white">
       <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col overflow-y-auto border-r border-rose-100 bg-rose-50/60 px-5 py-6">
@@ -74,13 +77,16 @@ export function DashboardShell({
             <GearIcon className="h-5 w-5" />
             Settings
           </Link>
-          <Link
-            href="/sign-in"
-            className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-100/70"
+          <button
+            type="button"
+            onClick={() => {
+              void logout();
+            }}
+            className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-sm font-semibold text-rose-700 hover:bg-rose-100/70"
           >
             <LogOutIcon className="h-5 w-5" />
             Sign Out
-          </Link>
+          </button>
         </div>
       </aside>
 
